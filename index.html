@@ -693,6 +693,14 @@
     }, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
     document.querySelectorAll('.reveal, .stagger').forEach(el => io.observe(el));
 
+    // ---- GitHub star widget alignment ----
+    const starObserver = new MutationObserver(() => {
+      const iframe = document.querySelector('.nav-star iframe');
+      if (iframe) { iframe.style.marginTop = '7px'; starObserver.disconnect(); }
+    });
+    const starLi = document.querySelector('.nav-star');
+    if (starLi) starObserver.observe(starLi, { childList: true });
+
     // ---- Three.js animated wireframe orb (fixed background) ----
     (function() {
       const canvas = document.getElementById('hero-canvas');
