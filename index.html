@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ecto — Federated Chat, Your Way</title>
+  <meta name="description" content="A Discord-like chat platform where you own the server. Self-host with Docker, traverse servers seamlessly, and keep your community yours." />
+  <meta property="og:title" content="Ecto — Federated Chat, Your Way" />
+  <meta property="og:description" content="Self-hosted, federated chat with voice, video, and seamless multi-server traversal." />
+  <meta property="og:image" content="https://ecto.chat/ecto.png" />
+  <meta property="og:url" content="https://ecto.chat" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href="./ecto.png" type="image/png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            surface: { 950: '#08090d', 900: '#0d0f15', 800: '#13151e', 700: '#1a1d2b' },
+            accent: { 400: '#818cf8', 500: '#6366f1', 600: '#4f46e5' },
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+          },
+        },
+      },
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  <style>
+    /* ---- Base ---- */
+    html { scroll-behavior: smooth; }
+    body { background: #08090d; color: #e2e8f0; }
+    ::selection { background: rgba(99,102,241,.35); }
+
+    /* ---- Animated gradient mesh background ---- */
+    .hero-bg {
+      position: absolute; inset: 0; overflow: hidden; z-index: 0;
+    }
+    .hero-bg::before {
+      content: '';
+      position: absolute;
+      width: 150%; height: 150%;
+      top: -25%; left: -25%;
+      background:
+        radial-gradient(ellipse 600px 600px at 20% 30%, rgba(99,102,241,.15), transparent),
+        radial-gradient(ellipse 500px 500px at 70% 60%, rgba(139,92,246,.12), transparent),
+        radial-gradient(ellipse 400px 400px at 50% 20%, rgba(59,130,246,.08), transparent);
+      animation: meshDrift 20s ease-in-out infinite alternate;
+    }
+    @keyframes meshDrift {
+      0%   { transform: translate(0, 0) scale(1); }
+      50%  { transform: translate(-3%, 2%) scale(1.05); }
+      100% { transform: translate(2%, -2%) scale(1); }
+    }
+
+    /* ---- Dot grid overlay ---- */
+    .dot-grid {
+      position: absolute; inset: 0; z-index: 1;
+      background-image: radial-gradient(circle, rgba(255,255,255,.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 20%, transparent 70%);
+      -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 20%, transparent 70%);
+    }
+
+    /* ---- Glow ring behind logo ---- */
+    .logo-glow {
+      position: relative;
+    }
+    .logo-glow::after {
+      content: '';
+      position: absolute; inset: -8px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(99,102,241,.25), transparent 70%);
+      filter: blur(12px);
+      opacity: 0;
+      transition: opacity .4s ease;
+    }
+    .logo-glow:hover::after { opacity: 1; }
+
+    /* ---- Gradient text ---- */
+    .gradient-text {
+      background: linear-gradient(135deg, #e2e8f0 0%, #818cf8 50%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ---- Navbar glassmorphism ---- */
+    .nav-glass {
+      background: rgba(8,9,13,.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .nav-glass.scrolled {
+      background: rgba(8,9,13,.92);
+      border-bottom-color: rgba(255,255,255,.08);
+    }
+
+    /* ---- Scroll-reveal animations ---- */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity .7s cubic-bezier(.22,1,.36,1), transform .7s cubic-bezier(.22,1,.36,1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* staggered children */
+    .reveal-stagger > .reveal:nth-child(1) { transition-delay: 0ms; }
+    .reveal-stagger > .reveal:nth-child(2) { transition-delay: 100ms; }
+    .reveal-stagger > .reveal:nth-child(3) { transition-delay: 200ms; }
+    .reveal-stagger > .reveal:nth-child(4) { transition-delay: 300ms; }
+
+    /* ---- Hero text entrance ---- */
+    .hero-title {
+      opacity: 0;
+      transform: translateY(40px);
+      animation: heroIn .9s cubic-bezier(.22,1,.36,1) .15s forwards;
+    }
+    .hero-sub {
+      opacity: 0;
+      transform: translateY(30px);
+      animation: heroIn .9s cubic-bezier(.22,1,.36,1) .35s forwards;
+    }
+    .hero-actions {
+      opacity: 0;
+      transform: translateY(24px);
+      animation: heroIn .9s cubic-bezier(.22,1,.36,1) .55s forwards;
+    }
+    .hero-code {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: heroIn .9s cubic-bezier(.22,1,.36,1) .7s forwards;
+    }
+    @keyframes heroIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ---- Feature card hover ---- */
+    .feature-card {
+      background: rgba(19,21,30,.6);
+      border: 1px solid rgba(255,255,255,.06);
+      transition: border-color .3s ease, box-shadow .3s ease, transform .3s ease;
+    }
+    .feature-card:hover {
+      border-color: rgba(99,102,241,.3);
+      box-shadow: 0 0 40px rgba(99,102,241,.08), inset 0 1px 0 rgba(255,255,255,.05);
+      transform: translateY(-4px);
+    }
+
+    /* ---- Glowing divider ---- */
+    .glow-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(99,102,241,.3), transparent);
+    }
+
+    /* ---- Code block ---- */
+    .code-block {
+      background: rgba(13,15,21,.8);
+      border: 1px solid rgba(255,255,255,.08);
+      position: relative;
+      overflow: hidden;
+    }
+    .code-block::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(99,102,241,.4), transparent);
+    }
+
+    /* ---- CTA glow button ---- */
+    .btn-glow {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-glow::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6, #6366f1);
+      border-radius: inherit;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity .3s ease;
+      filter: blur(12px);
+    }
+    .btn-glow:hover::before { opacity: .6; }
+
+    /* ---- Floating orbs ---- */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: .15;
+      pointer-events: none;
+    }
+    .orb-1 {
+      width: 400px; height: 400px;
+      background: #6366f1;
+      top: 60%; left: -5%;
+      animation: orbFloat 25s ease-in-out infinite alternate;
+    }
+    .orb-2 {
+      width: 300px; height: 300px;
+      background: #8b5cf6;
+      top: 30%; right: -5%;
+      animation: orbFloat 20s ease-in-out infinite alternate-reverse;
+    }
+    @keyframes orbFloat {
+      0%   { transform: translate(0, 0); }
+      100% { transform: translate(30px, -40px); }
+    }
+
+    /* ---- Pulse ring on feature icons ---- */
+    .icon-ring {
+      position: relative;
+    }
+    .icon-ring::after {
+      content: '';
+      position: absolute; inset: -4px;
+      border-radius: 16px;
+      border: 1px solid rgba(99,102,241,.2);
+      animation: pulseRing 3s ease-in-out infinite;
+    }
+    @keyframes pulseRing {
+      0%, 100% { opacity: 0; transform: scale(.95); }
+      50%      { opacity: 1; transform: scale(1.05); }
+    }
+
+    /* ---- Smooth anchor offset for fixed nav ---- */
+    section[id] { scroll-margin-top: 80px; }
+
+    /* ---- Mobile nav ---- */
+    .mobile-nav { display: none; }
+    .mobile-nav.open { display: flex; }
+  </style>
+</head>
+
+<body class="font-sans antialiased overflow-x-hidden">
+
+  <!-- ===================== NAVBAR ===================== -->
+  <nav id="navbar" class="nav-glass fixed top-0 inset-x-0 z-50 transition-all duration-300">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <!-- Logo -->
+      <a href="#" class="flex items-center gap-2.5 group">
+        <div class="logo-glow">
+          <img src="./ecto.png" alt="Ecto" class="h-8 w-8 transition-transform duration-300 group-hover:scale-110" />
+        </div>
+        <span class="text-lg font-bold text-white tracking-tight">ecto</span>
+      </a>
+
+      <!-- Desktop links -->
+      <div class="hidden md:flex items-center gap-8">
+        <a href="#features" class="text-sm text-gray-400 hover:text-white transition-colors duration-200">Features</a>
+        <a href="#get-started" class="text-sm text-gray-400 hover:text-white transition-colors duration-200">Get Started</a>
+        <a href="https://github.com/ecto-chat/ecto-docs" class="text-sm text-gray-400 hover:text-white transition-colors duration-200">Docs</a>
+      </div>
+
+      <!-- Right: GitHub star + CTA -->
+      <div class="hidden md:flex items-center gap-4">
+        <div class="mt-1">
+          <a class="github-button"
+             href="https://github.com/ecto-chat/ecto-server"
+             data-color-scheme="no-preference: dark; light: dark; dark: dark;"
+             data-size="large"
+             data-icon="octicon-star"
+             data-show-count="true"
+             aria-label="Star ecto-chat/ecto-server on GitHub">Star</a>
+        </div>
+        <a href="#get-started"
+           class="btn-glow relative inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-accent-500 hover:bg-accent-600 rounded-lg transition-colors duration-200">
+          Get Started
+        </a>
+      </div>
+
+      <!-- Mobile hamburger -->
+      <button id="menu-toggle" class="md:hidden p-2 text-gray-400 hover:text-white transition-colors" aria-label="Toggle menu">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path id="menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="mobile-nav flex-col px-4 pb-4 gap-2 md:hidden">
+      <a href="#features" class="text-sm text-gray-400 hover:text-white py-2 transition-colors">Features</a>
+      <a href="#get-started" class="text-sm text-gray-400 hover:text-white py-2 transition-colors">Get Started</a>
+      <a href="https://github.com/ecto-chat/ecto-docs" class="text-sm text-gray-400 hover:text-white py-2 transition-colors">Docs</a>
+      <div class="pt-2">
+        <a class="github-button"
+           href="https://github.com/ecto-chat/ecto-server"
+           data-color-scheme="no-preference: dark; light: dark; dark: dark;"
+           data-size="large"
+           data-icon="octicon-star"
+           data-show-count="true"
+           aria-label="Star ecto-chat/ecto-server on GitHub">Star</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===================== HERO ===================== -->
+  <section class="relative min-h-screen flex items-center justify-center pt-16">
+    <div class="hero-bg"></div>
+    <div class="dot-grid"></div>
+
+    <div class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center py-20">
+      <!-- Badge -->
+      <div class="hero-sub inline-flex items-center gap-2 px-3 py-1 mb-8 text-xs font-medium text-accent-400 border border-accent-500/20 rounded-full bg-accent-500/5">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-accent-400"></span>
+        </span>
+        Open Source &middot; Self-Hosted &middot; Federated
+      </div>
+
+      <!-- Headline -->
+      <h1 class="hero-title text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6">
+        <span class="text-white">Chat on </span>
+        <span class="gradient-text">Your Terms</span>
+      </h1>
+
+      <!-- Subtitle -->
+      <p class="hero-sub max-w-2xl mx-auto text-lg sm:text-xl text-gray-400 leading-relaxed mb-10">
+        A Discord-like platform where you own the server. Self-host with Docker,
+        traverse servers seamlessly, and keep your community yours.
+      </p>
+
+      <!-- Action buttons -->
+      <div class="hero-actions flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+        <a href="#get-started"
+           class="btn-glow inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-accent-500 hover:bg-accent-600 rounded-lg transition-all duration-200">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+          Get Started
+        </a>
+        <a href="https://github.com/ecto-chat/ecto-server"
+           class="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium text-gray-300 border border-white/10 hover:border-white/20 hover:text-white rounded-lg transition-all duration-200 bg-white/[.03] hover:bg-white/[.06]">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          View on GitHub
+        </a>
+      </div>
+
+      <!-- Docker quick-start -->
+      <div class="hero-code max-w-lg mx-auto">
+        <div class="code-block rounded-xl px-5 py-4 font-mono text-sm text-gray-300">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="text-gray-500 select-none">$</span>
+              <code>docker run -p 3000:3000 <span class="text-accent-400">ecto-chat/ecto-server</span></code>
+            </div>
+            <button onclick="navigator.clipboard.writeText('docker run -p 3000:3000 ecto-chat/ecto-server')" class="text-gray-500 hover:text-gray-300 transition-colors p-1" title="Copy">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
+      <div class="w-5 h-8 rounded-full border-2 border-white/10 flex justify-center pt-1.5">
+        <div class="w-1 h-2 rounded-full bg-white/30 animate-bounce"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="glow-divider"></div>
+
+  <!-- ===================== FEATURES ===================== -->
+  <section id="features" class="relative py-28 overflow-hidden">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6">
+      <!-- Section header -->
+      <div class="text-center mb-16 reveal">
+        <p class="text-sm font-semibold text-accent-400 tracking-widest uppercase mb-3">Features</p>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">Everything you need,<br class="hidden sm:block" /> nothing you don't</h2>
+        <p class="max-w-xl mx-auto text-gray-400">Full-featured chat with the freedom of self-hosting. No compromises.</p>
+      </div>
+
+      <!-- Feature grid -->
+      <div class="grid sm:grid-cols-2 gap-6 reveal-stagger">
+        <!-- Card 1 -->
+        <div class="feature-card rounded-2xl p-8 reveal">
+          <div class="icon-ring inline-flex items-center justify-center w-12 h-12 rounded-xl bg-accent-500/10 text-accent-400 mb-5">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" /></svg>
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-2">Self-Hosted Servers</h3>
+          <p class="text-gray-400 leading-relaxed">One <code class="text-xs font-mono bg-white/5 px-1.5 py-0.5 rounded">docker compose up</code> and you're live. PostgreSQL or SQLite — your data stays on your hardware. Every feature, zero cost.</p>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="feature-card rounded-2xl p-8 reveal">
+          <div class="icon-ring inline-flex items-center justify-center w-12 h-12 rounded-xl bg-accent-500/10 text-accent-400 mb-5">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-2">Seamless Traversal</h3>
+          <p class="text-gray-400 leading-relaxed">One client, unlimited servers. Jump between self-hosted and official servers without missing a beat. Your friends list and DMs follow you everywhere.</p>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="feature-card rounded-2xl p-8 reveal">
+          <div class="icon-ring inline-flex items-center justify-center w-12 h-12 rounded-xl bg-accent-500/10 text-accent-400 mb-5">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-2">Voice & Video</h3>
+          <p class="text-gray-400 leading-relaxed">Crystal-clear voice and video powered by WebRTC and mediasoup SFU. Up to 25 users per channel with adaptive bitrate and bundled TURN for NAT traversal.</p>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="feature-card rounded-2xl p-8 reveal">
+          <div class="icon-ring inline-flex items-center justify-center w-12 h-12 rounded-xl bg-accent-500/10 text-accent-400 mb-5">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+          </div>
+          <h3 class="text-xl font-semibold text-white mb-2">Permissions & Roles</h3>
+          <p class="text-gray-400 leading-relaxed">Granular bitfield permissions with role hierarchy, channel overrides, and a full audit log. Familiar if you've used Discord — but you control the rules.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="glow-divider"></div>
+
+  <!-- ===================== HOW IT WORKS ===================== -->
+  <section class="relative py-28 overflow-hidden">
+    <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-16 reveal">
+        <p class="text-sm font-semibold text-accent-400 tracking-widest uppercase mb-3">Architecture</p>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">Client-Hub Federation</h2>
+        <p class="max-w-2xl mx-auto text-gray-400">Your client is the hub. It connects to any number of independent servers while a lightweight central service handles identity, friends, and DMs across all of them.</p>
+      </div>
+
+      <!-- Architecture diagram -->
+      <div class="reveal max-w-3xl mx-auto">
+        <div class="code-block rounded-2xl p-8 sm:p-10">
+          <div class="flex flex-col items-center gap-6 text-sm font-mono">
+            <!-- Central -->
+            <div class="flex items-center gap-3 px-5 py-3 rounded-xl border border-accent-500/30 bg-accent-500/5 text-accent-400">
+              <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /></svg>
+              <span>Ecto Central</span>
+              <span class="text-gray-500 text-xs ml-2">identity &middot; friends &middot; DMs</span>
+            </div>
+
+            <!-- Connection lines -->
+            <div class="flex items-center gap-1 text-gray-600">
+              <div class="w-px h-6 bg-gradient-to-b from-accent-500/30 to-gray-700"></div>
+            </div>
+
+            <!-- Client -->
+            <div class="flex items-center gap-3 px-6 py-4 rounded-xl border border-white/15 bg-white/[.04] text-white">
+              <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+              <span class="font-semibold">Ecto Client</span>
+              <span class="text-gray-500 text-xs ml-2">your hub</span>
+            </div>
+
+            <!-- Connection lines -->
+            <div class="flex items-center gap-8 text-gray-600">
+              <div class="w-px h-6 bg-gradient-to-b from-gray-700 to-gray-700/50"></div>
+              <div class="w-px h-6 bg-gradient-to-b from-gray-700 to-gray-700/50"></div>
+              <div class="w-px h-6 bg-gradient-to-b from-gray-700 to-gray-700/50"></div>
+            </div>
+
+            <!-- Servers -->
+            <div class="flex flex-wrap justify-center gap-4">
+              <div class="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-white/8 bg-white/[.02] text-gray-400 text-xs">
+                <svg class="w-4 h-4 flex-shrink-0 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2" /></svg>
+                <span>Your Server</span>
+              </div>
+              <div class="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-white/8 bg-white/[.02] text-gray-400 text-xs">
+                <svg class="w-4 h-4 flex-shrink-0 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2" /></svg>
+                <span>Friend's Server</span>
+              </div>
+              <div class="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-white/8 bg-white/[.02] text-gray-400 text-xs">
+                <svg class="w-4 h-4 flex-shrink-0 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2" /></svg>
+                <span>Community Server</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="glow-divider"></div>
+
+  <!-- ===================== TECH STACK ===================== -->
+  <section class="relative py-28">
+    <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-12 reveal">
+        <p class="text-sm font-semibold text-accent-400 tracking-widest uppercase mb-3">Built With</p>
+        <h2 class="text-3xl sm:text-4xl font-bold text-white">Modern Stack, No Bloat</h2>
+      </div>
+
+      <div class="flex flex-wrap justify-center gap-3 reveal">
+        <span class="px-4 py-2 text-sm font-medium text-gray-300 bg-white/[.04] border border-white/8 rounded-full hover:border-accent-500/30 hover:text-white transition-all duration-200">React</span>
+        <span class="px-4 py-2 text-sm font-medium text-gray-300 bg-white/[.04] border border-white/8 rounded-full hover:border-accent-500/30 hover:text-white transition-all duration-200">TypeScript</span>
+        <span class="px-4 py-2 text-sm font-medium text-gray-300 bg-white/[.04] border border-white/8 rounded-full hover:border-accent-500/30 hover:text-white transition-all duration-200">Electron</span>
+        <span class="px-4 py-2 text-sm font-medium text-gray-300 bg-white/[.04] border border-white/8 rounded-full hover:border-accent-500/30 hover:text-white transition-all duration-200">Node.js</span>
+        <span class="px-4 py-2 text-sm font-medium text-gray-300 bg-white/[.04] border border-white/8 rounded-full hover:border-accent-500/30 hover:text-white transition-all duration-200">tRPC</span>
+        <span class="px-4 py-2 text-sm font-medium text-gray-300 bg-white/[.04] border border-white/8 rounded-full hover:border-accent-500/30 hover:text-white transition-all duration-200">WebSocket</span>
+        <span class="px-4 py-2 text-sm font-medium text-gray-300 bg-white/[.04] border border-white/8 rounded-full hover:border-accent-500/30 hover:text-white transition-all duration-200">PostgreSQL</span>
+        <span class="px-4 py-2 text-sm font-medium text-gray-300 bg-white/[.04] border border-white/8 rounded-full hover:border-accent-500/30 hover:text-white transition-all duration-200">SQLite</span>
+        <span class="px-4 py-2 text-sm font-medium text-gray-300 bg-white/[.04] border border-white/8 rounded-full hover:border-accent-500/30 hover:text-white transition-all duration-200">mediasoup</span>
+        <span class="px-4 py-2 text-sm font-medium text-gray-300 bg-white/[.04] border border-white/8 rounded-full hover:border-accent-500/30 hover:text-white transition-all duration-200">WebRTC</span>
+        <span class="px-4 py-2 text-sm font-medium text-gray-300 bg-white/[.04] border border-white/8 rounded-full hover:border-accent-500/30 hover:text-white transition-all duration-200">Docker</span>
+        <span class="px-4 py-2 text-sm font-medium text-gray-300 bg-white/[.04] border border-white/8 rounded-full hover:border-accent-500/30 hover:text-white transition-all duration-200">Drizzle ORM</span>
+        <span class="px-4 py-2 text-sm font-medium text-gray-300 bg-white/[.04] border border-white/8 rounded-full hover:border-accent-500/30 hover:text-white transition-all duration-200">Zustand</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="glow-divider"></div>
+
+  <!-- ===================== GET STARTED / CTA ===================== -->
+  <section id="get-started" class="relative py-28 overflow-hidden">
+    <div class="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 text-center">
+      <div class="reveal">
+        <p class="text-sm font-semibold text-accent-400 tracking-widest uppercase mb-3">Get Started</p>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">Deploy in Seconds</h2>
+        <p class="max-w-xl mx-auto text-gray-400 mb-10">Spin up your own Ecto server with Docker. Full features, no license fees, no user limits. Your server, your rules.</p>
+      </div>
+
+      <!-- Docker Compose block -->
+      <div class="reveal text-left max-w-xl mx-auto mb-10">
+        <div class="code-block rounded-xl overflow-hidden">
+          <div class="flex items-center justify-between px-5 py-3 border-b border-white/5">
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full bg-white/10"></div>
+              <div class="w-3 h-3 rounded-full bg-white/10"></div>
+              <div class="w-3 h-3 rounded-full bg-white/10"></div>
+            </div>
+            <span class="text-xs font-mono text-gray-500">docker-compose.yml</span>
+          </div>
+          <pre class="px-5 py-4 text-sm font-mono text-gray-300 overflow-x-auto leading-relaxed"><code><span class="text-accent-400">version</span>: <span class="text-green-400">'3.8'</span>
+<span class="text-accent-400">services</span>:
+  <span class="text-accent-400">ecto</span>:
+    <span class="text-accent-400">image</span>: <span class="text-green-400">ecto-chat/ecto-server</span>
+    <span class="text-accent-400">ports</span>:
+      - <span class="text-green-400">"3000:3000"</span>
+    <span class="text-accent-400">volumes</span>:
+      - <span class="text-green-400">ecto-data:/data</span>
+    <span class="text-accent-400">restart</span>: <span class="text-green-400">unless-stopped</span>
+
+<span class="text-accent-400">volumes</span>:
+  <span class="text-accent-400">ecto-data</span>:</code></pre>
+        </div>
+      </div>
+
+      <div class="reveal flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a href="https://github.com/ecto-chat/ecto-server"
+           class="btn-glow inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-accent-500 hover:bg-accent-600 rounded-lg transition-all duration-200">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          Star on GitHub
+        </a>
+        <a href="https://github.com/ecto-chat/ecto-docs"
+           class="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium text-gray-300 border border-white/10 hover:border-white/20 hover:text-white rounded-lg transition-all duration-200 bg-white/[.03] hover:bg-white/[.06]">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+          Read the Docs
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="border-t border-white/5 py-12">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div class="flex items-center gap-2.5">
+          <img src="./ecto.png" alt="Ecto" class="h-6 w-6 opacity-50" />
+          <span class="text-sm text-gray-500">&copy; 2025 Ecto. Open source under MIT.</span>
+        </div>
+        <div class="flex items-center gap-6">
+          <a href="https://github.com/ecto-chat" class="text-gray-500 hover:text-gray-300 transition-colors">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          </a>
+          <a href="https://github.com/ecto-chat/ecto-docs" class="text-gray-500 hover:text-gray-300 transition-colors text-sm">Docs</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===================== SCRIPTS ===================== -->
+  <script>
+    // Navbar scroll effect
+    const nav = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 20);
+    }, { passive: true });
+
+    // Mobile menu toggle
+    const toggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    toggle.addEventListener('click', () => {
+      mobileMenu.classList.toggle('open');
+    });
+    // Close on link click
+    mobileMenu.querySelectorAll('a[href^="#"]').forEach(link => {
+      link.addEventListener('click', () => mobileMenu.classList.remove('open'));
+    });
+
+    // Scroll-reveal with IntersectionObserver
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          // If parent is a stagger container, reveal all children
+          if (entry.target.classList.contains('reveal-stagger')) {
+            entry.target.querySelectorAll('.reveal').forEach(child => {
+              child.classList.add('visible');
+            });
+          }
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.reveal, .reveal-stagger').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
