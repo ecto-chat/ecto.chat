@@ -164,6 +164,12 @@
       border-radius:28px;
       padding:3rem 2.5rem;
     }
+    .hero-badges {
+      display:flex; align-items:center; justify-content:center; gap:.6rem; flex-wrap:wrap;
+      margin-bottom:2rem;
+      opacity:0; transform:translateY(20px);
+      animation:fadeUp .8s cubic-bezier(.22,1,.36,1) .1s forwards;
+    }
     .hero-badge {
       display:inline-flex; align-items:center; gap:8px;
       padding:6px 16px;
@@ -171,9 +177,23 @@
       background:rgba(124,58,237,.08);
       font-size:.75rem; font-weight:500;
       color:rgba(167,139,250,.9);
-      margin-bottom:2rem;
-      opacity:0; transform:translateY(20px);
-      animation:fadeUp .8s cubic-bezier(.22,1,.36,1) .1s forwards;
+    }
+    .hero-badge-green {
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 16px;
+      border:1px solid rgba(74,222,128,.25); border-radius:100px;
+      background:rgba(74,222,128,.08);
+      font-size:.75rem; font-weight:500;
+      color:rgba(74,222,128,.9);
+    }
+    .hero-badge-green .pulse {
+      width:6px; height:6px; border-radius:50%;
+      background:#4ade80; position:relative;
+    }
+    .hero-badge-green .pulse::before {
+      content:''; position:absolute; inset:-3px;
+      border-radius:50%; background:#4ade80;
+      animation:ping 2s cubic-bezier(0,0,.2,1) infinite; opacity:0;
     }
     .hero-badge .pulse {
       width:6px; height:6px; border-radius:50%;
@@ -525,16 +545,22 @@
   <!-- ===== HERO ===== -->
   <section class="hero">
     <div class="hero-content">
-      <div class="hero-badge">
-        <span class="pulse"></span>
-        Free &middot; Cross-Platform &middot; Voice & Video
+      <div class="hero-badges">
+        <div class="hero-badge">
+          <span class="pulse"></span>
+          Free &middot; Cross-Platform &middot; Voice & Video
+        </div>
+        <div class="hero-badge-green">
+          <span class="pulse"></span>
+          Open-Source &middot; Self-Hostable
+        </div>
       </div>
       <h1 class="hero-title">Chat Without <span class="accent">Limits</span></h1>
       <p class="hero-sub">Voice, video, and messaging across unlimited servers. One account, every community.</p>
       <div class="hero-actions">
         <a href="https://app.ecto.chat" class="btn-primary btn-wave">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 10V3L4 14h9v7l9-11h-9z"/></svg>
-          Open Ecto — It's Free
+          Open Ecto Web
         </a>
         <a href="https://app.ecto.chat/download" class="btn-ghost">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
