@@ -149,12 +149,13 @@
     .hero {
       position:relative; z-index:2;
       min-height:100vh;
-      display:flex; align-items:center; justify-content:center;
+      display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+      padding-top:clamp(120px, 18vh, 180px);
     }
     .hero-content {
       position:relative; z-index:10;
       text-align:center; padding:0 1.5rem;
-      max-width:1000px; margin-top:-40px;
+      max-width:700px;
     }
     .hero-frost {
       background:rgba(5,5,16,.3);
@@ -258,26 +259,21 @@
     @keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
 
     /* ===== HERO SCREENSHOT ===== */
-    .hero-screenshot-wrap {
-      margin-bottom:2rem;
-      perspective:800px;
+    .hero-screenshot-full {
+      position:relative; z-index:10;
+      width:100%; max-width:1100px;
+      margin:2.5rem auto 0;
+      padding:0 1.5rem;
+      opacity:0; transform:translateY(40px);
+      animation:fadeUp 1s cubic-bezier(.22,1,.36,1) .7s forwards;
+      -webkit-mask-image:linear-gradient(to bottom, #000 50%, transparent 100%);
+      mask-image:linear-gradient(to bottom, #000 50%, transparent 100%);
     }
-    .hero-screenshot {
+    .hero-screenshot-full img {
+      display:block; width:100%; height:auto;
       border-radius:16px;
-      overflow:hidden;
       border:1px solid rgba(255,255,255,.08);
       box-shadow:0 20px 60px rgba(0,0,0,.5), 0 0 40px rgba(124,58,237,.1);
-      transition:transform .15s ease-out, box-shadow .3s ease;
-      will-change:transform;
-    }
-    .hero-screenshot img {
-      display:block;
-      width:100%;
-      height:auto;
-      pointer-events:none;
-    }
-    .hero-screenshot:hover {
-      box-shadow:0 30px 80px rgba(0,0,0,.6), 0 0 60px rgba(124,58,237,.15);
     }
 
     /* ===== FLOATING GLASS CARDS ===== */
@@ -529,30 +525,25 @@
   <!-- ===== HERO ===== -->
   <section class="hero">
     <div class="hero-content">
-      <div class="hero-frost">
-        <div class="hero-badge">
-          <span class="pulse"></span>
-          Free &middot; Cross-Platform &middot; Voice & Video
-        </div>
-        <div class="hero-screenshot-wrap">
-          <div class="hero-screenshot" id="hero-screenshot">
-            <img src="hero.png" alt="Ecto chat interface" draggable="false" />
-          </div>
-        </div>
-        <div class="hero-actions">
-          <a href="https://app.ecto.chat" class="btn-primary btn-wave">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 10V3L4 14h9v7l9-11h-9z"/></svg>
-            Open Ecto — It's Free
-          </a>
-          <a href="https://app.ecto.chat/download" class="btn-ghost">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Download for Desktop
-          </a>
-        </div>
+      <div class="hero-badge">
+        <span class="pulse"></span>
+        Free &middot; Cross-Platform &middot; Voice & Video
+      </div>
+      <h1 class="hero-title">Chat Without <span class="accent">Limits</span></h1>
+      <p class="hero-sub">Voice, video, and messaging across unlimited servers. One account, every community.</p>
+      <div class="hero-actions">
+        <a href="https://app.ecto.chat" class="btn-primary btn-wave">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 10V3L4 14h9v7l9-11h-9z"/></svg>
+          Open Ecto — It's Free
+        </a>
+        <a href="https://app.ecto.chat/download" class="btn-ghost">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download for Desktop
+        </a>
       </div>
     </div>
-    <div class="scroll-indicator">
-      <div class="scroll-mouse"><div class="scroll-dot"></div></div>
+    <div class="hero-screenshot-full">
+      <img src="hero.png" alt="Ecto chat interface" draggable="false" />
     </div>
   </section>
 
@@ -706,26 +697,6 @@
     });
     const starLi = document.querySelector('.nav-star');
     if (starLi) starObserver.observe(starLi, { childList: true });
-
-    // ---- Hero screenshot parallax ----
-    (function() {
-      const el = document.getElementById('hero-screenshot');
-      if (!el) return;
-      document.addEventListener('mousemove', (e) => {
-        const rect = el.getBoundingClientRect();
-        const cx = rect.left + rect.width / 2;
-        const cy = rect.top + rect.height / 2;
-        const dx = (e.clientX - cx) / (rect.width / 2);
-        const dy = (e.clientY - cy) / (rect.height / 2);
-        const maxTilt = 2.4;
-        const rotY = dx * maxTilt;
-        const rotX = -dy * maxTilt;
-        el.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
-      }, { passive: true });
-      document.addEventListener('mouseleave', () => {
-        el.style.transform = 'rotateX(0) rotateY(0)';
-      });
-    })();
 
     // ---- Three.js animated wireframe orb (fixed background) ----
     (function() {
