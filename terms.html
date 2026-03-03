@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms of Service — Ecto</title>
+  <meta name="description" content="Ecto's Terms of Service — the rules and agreements governing use of Ecto Central and self-hosted deployments." />
+  <meta property="og:title" content="Terms of Service — Ecto" />
+  <meta property="og:description" content="Terms governing use of Ecto Central and self-hosted deployments." />
+  <meta property="og:image" content="https://ecto.chat/ecto.png" />
+  <meta property="og:url" content="https://ecto.chat/terms" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href="./ecto.png" type="image/png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { fontFamily: { sans: ['Inter','system-ui','sans-serif'], mono: ['JetBrains Mono','Fira Code','monospace'] } } }
+    }
+  </script>
+
+  <style>
+    /* ===== BASE ===== */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body {
+      background:#050510; color:#c8ccd8;
+      font-family:'Inter',system-ui,sans-serif;
+      overflow-x:hidden;
+    }
+    ::selection { background:rgba(124,58,237,.35); color:#fff; }
+
+    /* ===== GRAIN ===== */
+    body::after {
+      content:''; position:fixed; inset:0; z-index:9999; pointer-events:none; opacity:.025;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-repeat:repeat; background-size:128px 128px;
+    }
+
+    /* ===== FIXED BACKGROUND ===== */
+    .bg-glow {
+      position:fixed; z-index:0; pointer-events:none;
+      width:700px; height:700px;
+      top:50%; left:50%;
+      transform:translate(-50%,-40%);
+      background:radial-gradient(circle, rgba(124,58,237,.14) 0%, rgba(79,70,229,.07) 40%, transparent 70%);
+      filter:blur(40px);
+      animation:glowPulse 8s ease-in-out infinite alternate;
+    }
+    @keyframes glowPulse {
+      0%   { opacity:.6; transform:translate(-50%,-40%) scale(1); }
+      100% { opacity:1;  transform:translate(-50%,-40%) scale(1.1); }
+    }
+
+    /* ===== NAVBAR ===== */
+    .nav {
+      position:fixed; top:0; left:0; right:0; z-index:100;
+      padding:0 2rem;
+      background:rgba(5,5,16,.4);
+      backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+      border-bottom:1px solid rgba(255,255,255,.03);
+      transition:all .4s cubic-bezier(.22,1,.36,1);
+    }
+    .nav-inner {
+      max-width:1200px; margin:0 auto;
+      display:flex; align-items:center; justify-content:space-between;
+      height:72px;
+    }
+    .nav.scrolled {
+      background:rgba(5,5,16,.75);
+      border-bottom-color:rgba(255,255,255,.06);
+    }
+    .nav-logo { display:flex; align-items:center; gap:10px; text-decoration:none; color:#fff; }
+    .nav-logo img { height:32px; width:32px; }
+    .nav-logo span { font-weight:700; font-size:1.15rem; letter-spacing:-.02em; }
+    .nav-links { display:flex; align-items:center; gap:2rem; list-style:none; margin:0; padding:0; }
+    .nav-links li { display:flex; align-items:center; }
+    .nav-links a {
+      color:rgba(255,255,255,.45); text-decoration:none;
+      font-size:.875rem; font-weight:450;
+      transition:color .25s ease; position:relative;
+    }
+    .nav-links a:hover { color:rgba(255,255,255,.9); }
+    .nav-links a::after {
+      content:''; position:absolute; bottom:-4px; left:0; right:0;
+      height:1px; background:rgba(124,58,237,.6);
+      transform:scaleX(0); transform-origin:right;
+      transition:transform .3s ease;
+    }
+    .nav-links a:hover::after { transform:scaleX(1); transform-origin:left; }
+    .nav-right { display:flex; align-items:center; gap:1rem; }
+    .nav-cta {
+      display:inline-flex; align-items:center; gap:6px;
+      padding:8px 20px; background:rgba(124,58,237,.9);
+      color:#fff; font-size:.8125rem; font-weight:600;
+      border-radius:8px; border:none; cursor:pointer; text-decoration:none;
+      transition:all .25s ease;
+    }
+    .nav-cta:hover { background:rgba(124,58,237,1); box-shadow:0 0 24px rgba(124,58,237,.4); }
+
+    .nav-hamburger { display:none; background:none; border:none; color:rgba(255,255,255,.6); cursor:pointer; padding:8px; }
+    .mobile-menu {
+      display:none; position:fixed; top:72px; left:0; right:0; z-index:99;
+      background:rgba(5,5,16,.92); backdrop-filter:blur(24px);
+      border-bottom:1px solid rgba(255,255,255,.05);
+      padding:1rem 2rem; flex-direction:column; gap:.75rem;
+    }
+    .mobile-menu.open { display:flex; }
+    .mobile-menu a { color:rgba(255,255,255,.5); text-decoration:none; font-size:.875rem; padding:.5rem 0; transition:color .2s; }
+    .mobile-menu a:hover { color:#fff; }
+    @media(max-width:768px) { .nav-links,.nav-right { display:none; } .nav-hamburger { display:block; } }
+
+    /* ===== LEGAL CONTENT ===== */
+    .legal-content {
+      position:relative; z-index:4;
+      max-width:800px; margin:0 auto;
+      padding:7rem 2rem 4rem;
+    }
+    .legal-content h1 {
+      font-size:clamp(2rem,4vw,3rem); font-weight:800;
+      letter-spacing:-.03em; color:#fff; margin-bottom:.5rem;
+    }
+    .legal-content .legal-updated {
+      font-size:.85rem; color:rgba(255,255,255,.3); margin-bottom:2.5rem;
+    }
+    .legal-content h2 {
+      font-size:1.35rem; font-weight:700; color:#fff;
+      margin-top:2.5rem; margin-bottom:.75rem; letter-spacing:-.01em;
+    }
+    .legal-content h3 {
+      font-size:1.05rem; font-weight:600; color:rgba(255,255,255,.85);
+      margin-top:1.5rem; margin-bottom:.5rem;
+    }
+    .legal-content p {
+      font-size:.925rem; line-height:1.75; color:rgba(255,255,255,.45);
+      margin-bottom:1rem;
+    }
+    .legal-content ul, .legal-content ol {
+      margin-bottom:1rem; padding-left:1.5rem;
+    }
+    .legal-content li {
+      font-size:.925rem; line-height:1.75; color:rgba(255,255,255,.45);
+      margin-bottom:.35rem;
+    }
+    .legal-content a {
+      color:#a78bfa; text-decoration:none; transition:color .2s;
+    }
+    .legal-content a:hover { color:#c4b5fd; }
+    .legal-content strong { color:rgba(255,255,255,.7); font-weight:600; }
+
+    /* ===== LEGAL LEGEND ===== */
+    .legal-legend {
+      display:flex; flex-wrap:wrap; gap:1rem; margin-bottom:2.5rem;
+      padding:1.25rem 1.5rem;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:12px;
+    }
+    .legal-legend-item {
+      display:flex; align-items:center; gap:.5rem;
+      font-size:.8rem; color:rgba(255,255,255,.4);
+    }
+    .legal-legend-swatch {
+      width:14px; height:14px; border-radius:4px;
+    }
+    .legal-legend-swatch.central {
+      background:rgba(124,58,237,.15); border:1px solid rgba(124,58,237,.4);
+    }
+    .legal-legend-swatch.selfhost {
+      background:rgba(74,222,128,.1); border:1px solid rgba(74,222,128,.35);
+    }
+
+    /* ===== COLOR-CODED SECTIONS ===== */
+    .legal-central {
+      border-left:3px solid rgba(124,58,237,.5);
+      background:linear-gradient(90deg, rgba(124,58,237,.06) 0%, transparent 60%);
+      padding:1.25rem 1.5rem;
+      border-radius:0 12px 12px 0;
+      margin:1rem 0;
+      position:relative;
+    }
+    .legal-central::before {
+      content:'ECTO CENTRAL';
+      display:inline-block;
+      font-size:.65rem; font-weight:700; letter-spacing:.08em;
+      color:rgba(124,58,237,.9);
+      background:rgba(124,58,237,.12);
+      padding:3px 10px; border-radius:100px;
+      margin-bottom:.75rem;
+    }
+    .legal-central p, .legal-central li { color:rgba(255,255,255,.45); }
+
+    .legal-selfhost {
+      border-left:3px solid rgba(74,222,128,.45);
+      background:linear-gradient(90deg, rgba(74,222,128,.05) 0%, transparent 60%);
+      padding:1.25rem 1.5rem;
+      border-radius:0 12px 12px 0;
+      margin:1rem 0;
+      position:relative;
+    }
+    .legal-selfhost::before {
+      content:'SELF-HOSTED';
+      display:inline-block;
+      font-size:.65rem; font-weight:700; letter-spacing:.08em;
+      color:rgba(74,222,128,.85);
+      background:rgba(74,222,128,.1);
+      padding:3px 10px; border-radius:100px;
+      margin-bottom:.75rem;
+    }
+    .legal-selfhost p, .legal-selfhost li { color:rgba(255,255,255,.45); }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      border-top:1px solid rgba(255,255,255,.04);
+      padding:3rem 2rem;
+      position:relative; z-index:4;
+      background:rgba(5,5,16,.7);
+      backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    }
+    .footer-inner { max-width:1100px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; }
+    .footer-left { display:flex; align-items:center; gap:10px; }
+    .footer-left img { height:20px; width:20px; opacity:.35; }
+    .footer-left span { font-size:.8rem; color:rgba(255,255,255,.2); }
+    .footer-right { display:flex; align-items:center; gap:1.5rem; }
+    .footer-right a { color:rgba(255,255,255,.2); text-decoration:none; font-size:.8125rem; transition:color .25s; }
+    .footer-right a:hover { color:rgba(255,255,255,.5); }
+  </style>
+</head>
+
+<body>
+
+  <!-- ===== FIXED BACKGROUND ===== -->
+  <div class="bg-glow"></div>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="nav" id="navbar">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo"><img src="./ecto.png" alt="Ecto" /><span>Ecto</span></a>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/#features">Features</a></li>
+        <li><a href="/privacy">Privacy</a></li>
+        <li><a href="/terms">Terms</a></li>
+      </ul>
+      <div class="nav-right">
+        <a href="https://app.ecto.chat" class="nav-cta">Open Ecto</a>
+      </div>
+      <button class="nav-hamburger" id="menu-toggle" aria-label="Toggle menu">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+  </nav>
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="/">Home</a>
+    <a href="/#features">Features</a>
+    <a href="/privacy">Privacy</a>
+    <a href="/terms">Terms</a>
+    <a href="https://github.com/ecto-chat/ecto-server">GitHub</a>
+  </div>
+
+  <!-- ===== TERMS OF SERVICE ===== -->
+  <main class="legal-content">
+    <h1>Terms of Service</h1>
+    <p class="legal-updated">Last updated: March 3, 2026</p>
+
+    <div class="legal-legend">
+      <div class="legal-legend-item">
+        <div class="legal-legend-swatch central"></div>
+        Applies to Ecto Central (app.ecto.chat)
+      </div>
+      <div class="legal-legend-item">
+        <div class="legal-legend-swatch selfhost"></div>
+        Applies to Self-Hosted servers
+      </div>
+      <div class="legal-legend-item">
+        <span style="color:rgba(255,255,255,.55);">Unmarked</span> &mdash; applies to all users
+      </div>
+    </div>
+
+    <!-- 1. Acceptance & Eligibility -->
+    <h2>1. Acceptance & Eligibility</h2>
+    <p>By accessing or using Ecto, you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not use Ecto.</p>
+    <p>You must be at least <strong>13 years of age</strong> to use Ecto. If you are under 18, you represent that you have your parent or guardian's consent to use the service. Some jurisdictions may require a higher minimum age — you are responsible for complying with your local laws.</p>
+
+    <!-- 2. Definitions -->
+    <h2>2. Definitions</h2>
+    <ul>
+      <li><strong>Ecto Central</strong> — the hosted Ecto service operated by us at <a href="https://app.ecto.chat">app.ecto.chat</a>.</li>
+      <li><strong>Self-Hosted</strong> — instances of the open-source Ecto server software run by independent third-party operators.</li>
+      <li><strong>User</strong> — any individual who creates an account or uses the Ecto client application.</li>
+      <li><strong>Server Operator</strong> — a person or entity who runs a self-hosted Ecto server instance.</li>
+      <li><strong>Content</strong> — any text, images, files, audio, video, or other material transmitted through Ecto.</li>
+    </ul>
+
+    <!-- 3. Account Registration -->
+    <h2>3. Account Registration</h2>
+    <h3>All Users</h3>
+    <p>You may need to create an account to use Ecto. You are responsible for maintaining the security of your account credentials and for all activity that occurs under your account. You agree to provide accurate information during registration and to keep it up to date.</p>
+
+    <div class="legal-central">
+      <h3>Ecto Central</h3>
+      <p>Accounts on Ecto Central are created and managed through <a href="https://app.ecto.chat">app.ecto.chat</a>. We reserve the right to suspend or terminate accounts that violate these Terms, without prior notice in cases of severe violations. You may delete your account at any time from your account settings.</p>
+    </div>
+
+    <div class="legal-selfhost">
+      <h3>Self-Hosted Servers</h3>
+      <p>Account management on self-hosted servers is the responsibility of the server operator. The operator sets their own registration policies, and we have no control over account creation, suspension, or deletion on third-party instances.</p>
+    </div>
+
+    <!-- 4. Acceptable Use -->
+    <h2>4. Acceptable Use</h2>
+    <h3>All Users</h3>
+    <p>You agree not to use Ecto to:</p>
+    <ul>
+      <li>Upload, share, or distribute child sexual abuse material (CSAM) or any content that exploits minors</li>
+      <li>Harass, threaten, stalk, or intimidate other users</li>
+      <li>Distribute malware, viruses, or other harmful software</li>
+      <li>Engage in illegal activities or facilitate violations of law</li>
+      <li>Impersonate other individuals or entities</li>
+      <li>Spam or send unsolicited mass messages</li>
+      <li>Attempt to gain unauthorized access to other accounts or systems</li>
+    </ul>
+
+    <div class="legal-central">
+      <h3>Ecto Central</h3>
+      <p>We actively moderate content on Ecto Central and may remove content or suspend accounts that violate these Terms. We may use automated systems and human review to detect violations. Repeated or severe violations will result in permanent account termination.</p>
+    </div>
+
+    <div class="legal-selfhost">
+      <h3>Self-Hosted Servers</h3>
+      <p>Server operators are responsible for establishing and enforcing their own community guidelines and moderation policies. We do not moderate content on self-hosted servers. Operators may impose additional rules beyond these Terms.</p>
+    </div>
+
+    <!-- 5. Software License -->
+    <h2>5. Software License</h2>
+    <h3>Ecto Client Application</h3>
+    <p>We grant you a limited, non-exclusive, non-transferable, revocable license to use the Ecto client application for its intended purpose — communicating through Ecto-compatible servers. You may not reverse-engineer, decompile, or create derivative works of the client application, except where required by applicable law.</p>
+
+    <div class="legal-selfhost">
+      <h3>Self-Hosted Server Software</h3>
+      <p>The Ecto server software is open source and licensed under the terms of its repository license (see <a href="https://github.com/ecto-chat/ecto-server">github.com/ecto-chat/ecto-server</a>). Your use of the self-hosted server software is governed by that license, not these Terms. These Terms govern your use of the Ecto client and the Ecto Central service.</p>
+    </div>
+
+    <!-- 6. Intellectual Property -->
+    <h2>6. Intellectual Property</h2>
+    <p>The Ecto name, logo, and branding are the property of Ecto. You may not use our trademarks without prior written permission, except as necessary to describe your use of the service (e.g., "compatible with Ecto" or "powered by Ecto server").</p>
+    <p><strong>Your content remains yours.</strong> By using Ecto, you do not transfer ownership of any content you create or share. You grant us a limited license to transmit, store, and display your content as necessary to operate the service.</p>
+
+    <!-- 7. Service Availability -->
+    <h2>7. Service Availability</h2>
+
+    <div class="legal-central">
+      <h3>Ecto Central</h3>
+      <p>We strive to keep Ecto Central available and reliable, but we do not guarantee any specific uptime or service level. We may modify, suspend, or discontinue any part of Ecto Central at any time, with or without notice. We are not liable for any downtime, data loss, or service interruptions.</p>
+    </div>
+
+    <div class="legal-selfhost">
+      <h3>Self-Hosted Servers</h3>
+      <p>The availability and reliability of self-hosted servers are entirely the responsibility of the server operator. We provide no guarantees or support for third-party instances.</p>
+    </div>
+
+    <!-- 8. Limitation of Liability -->
+    <h2>8. Limitation of Liability</h2>
+    <p>Ecto is provided <strong>"as is" and "as available"</strong> without warranties of any kind, whether express or implied, including but not limited to implied warranties of merchantability, fitness for a particular purpose, and non-infringement.</p>
+    <p>To the maximum extent permitted by law, Ecto and its team shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits, data, or goodwill, arising from your use of or inability to use the service.</p>
+
+    <!-- 9. Termination -->
+    <h2>9. Termination</h2>
+
+    <div class="legal-central">
+      <h3>Ecto Central</h3>
+      <p>We may suspend or terminate your access to Ecto Central at any time for violations of these Terms or for any other reason at our discretion. You may terminate your account at any time by deleting it from your account settings. Upon termination, your right to use Ecto Central ceases immediately.</p>
+    </div>
+
+    <div class="legal-selfhost">
+      <h3>Self-Hosted Servers</h3>
+      <p>Your access to self-hosted servers is governed by the server operator. We may revoke the client application license if you violate these Terms. The open-source server license remains governed by its own terms.</p>
+    </div>
+
+    <!-- 10. Changes to Terms -->
+    <h2>10. Changes to Terms</h2>
+    <p>We may update these Terms from time to time. When we make significant changes, we will notify users through the Ecto application or by updating the "Last updated" date at the top of this page. Continued use of Ecto after changes constitutes acceptance of the updated Terms. If you disagree with the changes, you should stop using Ecto and delete your account.</p>
+
+    <!-- 11. Contact -->
+    <h2>11. Contact</h2>
+    <p>If you have questions about these Terms of Service, contact us at:</p>
+    <ul>
+      <li>Email: <a href="mailto:legal@ecto.chat">legal@ecto.chat</a></li>
+      <li>GitHub: <a href="https://github.com/ecto-chat">github.com/ecto-chat</a></li>
+    </ul>
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-left"><img src="./ecto.png" alt="Ecto" /><span>&copy; 2025 Ecto.</span></div>
+      <div class="footer-right">
+        <a href="https://app.ecto.chat">Open App</a>
+        <a href="https://app.ecto.chat/download">Download</a>
+        <a href="https://github.com/ecto-chat">GitHub</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== SCRIPTS ===== -->
+  <script>
+    // Navbar scroll
+    const nav = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 20);
+    }, { passive: true });
+
+    // Mobile menu
+    document.getElementById('menu-toggle').addEventListener('click', () => {
+      document.getElementById('mobile-menu').classList.toggle('open');
+    });
+    document.querySelectorAll('#mobile-menu a').forEach(a => {
+      a.addEventListener('click', () => document.getElementById('mobile-menu').classList.remove('open'));
+    });
+  </script>
+</body>
+</html>

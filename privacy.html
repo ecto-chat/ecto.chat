@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — Ecto</title>
+  <meta name="description" content="Ecto's Privacy Policy — how we handle your data across Ecto Central and self-hosted deployments." />
+  <meta property="og:title" content="Privacy Policy — Ecto" />
+  <meta property="og:description" content="How Ecto handles your data across Central and self-hosted deployments." />
+  <meta property="og:image" content="https://ecto.chat/ecto.png" />
+  <meta property="og:url" content="https://ecto.chat/privacy" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href="./ecto.png" type="image/png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { fontFamily: { sans: ['Inter','system-ui','sans-serif'], mono: ['JetBrains Mono','Fira Code','monospace'] } } }
+    }
+  </script>
+
+  <style>
+    /* ===== BASE ===== */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body {
+      background:#050510; color:#c8ccd8;
+      font-family:'Inter',system-ui,sans-serif;
+      overflow-x:hidden;
+    }
+    ::selection { background:rgba(124,58,237,.35); color:#fff; }
+
+    /* ===== GRAIN ===== */
+    body::after {
+      content:''; position:fixed; inset:0; z-index:9999; pointer-events:none; opacity:.025;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-repeat:repeat; background-size:128px 128px;
+    }
+
+    /* ===== FIXED BACKGROUND ===== */
+    .bg-glow {
+      position:fixed; z-index:0; pointer-events:none;
+      width:700px; height:700px;
+      top:50%; left:50%;
+      transform:translate(-50%,-40%);
+      background:radial-gradient(circle, rgba(124,58,237,.14) 0%, rgba(79,70,229,.07) 40%, transparent 70%);
+      filter:blur(40px);
+      animation:glowPulse 8s ease-in-out infinite alternate;
+    }
+    @keyframes glowPulse {
+      0%   { opacity:.6; transform:translate(-50%,-40%) scale(1); }
+      100% { opacity:1;  transform:translate(-50%,-40%) scale(1.1); }
+    }
+
+    /* ===== NAVBAR ===== */
+    .nav {
+      position:fixed; top:0; left:0; right:0; z-index:100;
+      padding:0 2rem;
+      background:rgba(5,5,16,.4);
+      backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+      border-bottom:1px solid rgba(255,255,255,.03);
+      transition:all .4s cubic-bezier(.22,1,.36,1);
+    }
+    .nav-inner {
+      max-width:1200px; margin:0 auto;
+      display:flex; align-items:center; justify-content:space-between;
+      height:72px;
+    }
+    .nav.scrolled {
+      background:rgba(5,5,16,.75);
+      border-bottom-color:rgba(255,255,255,.06);
+    }
+    .nav-logo { display:flex; align-items:center; gap:10px; text-decoration:none; color:#fff; }
+    .nav-logo img { height:32px; width:32px; }
+    .nav-logo span { font-weight:700; font-size:1.15rem; letter-spacing:-.02em; }
+    .nav-links { display:flex; align-items:center; gap:2rem; list-style:none; margin:0; padding:0; }
+    .nav-links li { display:flex; align-items:center; }
+    .nav-links a {
+      color:rgba(255,255,255,.45); text-decoration:none;
+      font-size:.875rem; font-weight:450;
+      transition:color .25s ease; position:relative;
+    }
+    .nav-links a:hover { color:rgba(255,255,255,.9); }
+    .nav-links a::after {
+      content:''; position:absolute; bottom:-4px; left:0; right:0;
+      height:1px; background:rgba(124,58,237,.6);
+      transform:scaleX(0); transform-origin:right;
+      transition:transform .3s ease;
+    }
+    .nav-links a:hover::after { transform:scaleX(1); transform-origin:left; }
+    .nav-right { display:flex; align-items:center; gap:1rem; }
+    .nav-cta {
+      display:inline-flex; align-items:center; gap:6px;
+      padding:8px 20px; background:rgba(124,58,237,.9);
+      color:#fff; font-size:.8125rem; font-weight:600;
+      border-radius:8px; border:none; cursor:pointer; text-decoration:none;
+      transition:all .25s ease;
+    }
+    .nav-cta:hover { background:rgba(124,58,237,1); box-shadow:0 0 24px rgba(124,58,237,.4); }
+
+    .nav-hamburger { display:none; background:none; border:none; color:rgba(255,255,255,.6); cursor:pointer; padding:8px; }
+    .mobile-menu {
+      display:none; position:fixed; top:72px; left:0; right:0; z-index:99;
+      background:rgba(5,5,16,.92); backdrop-filter:blur(24px);
+      border-bottom:1px solid rgba(255,255,255,.05);
+      padding:1rem 2rem; flex-direction:column; gap:.75rem;
+    }
+    .mobile-menu.open { display:flex; }
+    .mobile-menu a { color:rgba(255,255,255,.5); text-decoration:none; font-size:.875rem; padding:.5rem 0; transition:color .2s; }
+    .mobile-menu a:hover { color:#fff; }
+    @media(max-width:768px) { .nav-links,.nav-right { display:none; } .nav-hamburger { display:block; } }
+
+    /* ===== LEGAL CONTENT ===== */
+    .legal-content {
+      position:relative; z-index:4;
+      max-width:800px; margin:0 auto;
+      padding:7rem 2rem 4rem;
+    }
+    .legal-content h1 {
+      font-size:clamp(2rem,4vw,3rem); font-weight:800;
+      letter-spacing:-.03em; color:#fff; margin-bottom:.5rem;
+    }
+    .legal-content .legal-updated {
+      font-size:.85rem; color:rgba(255,255,255,.3); margin-bottom:2.5rem;
+    }
+    .legal-content h2 {
+      font-size:1.35rem; font-weight:700; color:#fff;
+      margin-top:2.5rem; margin-bottom:.75rem; letter-spacing:-.01em;
+    }
+    .legal-content h3 {
+      font-size:1.05rem; font-weight:600; color:rgba(255,255,255,.85);
+      margin-top:1.5rem; margin-bottom:.5rem;
+    }
+    .legal-content p {
+      font-size:.925rem; line-height:1.75; color:rgba(255,255,255,.45);
+      margin-bottom:1rem;
+    }
+    .legal-content ul, .legal-content ol {
+      margin-bottom:1rem; padding-left:1.5rem;
+    }
+    .legal-content li {
+      font-size:.925rem; line-height:1.75; color:rgba(255,255,255,.45);
+      margin-bottom:.35rem;
+    }
+    .legal-content a {
+      color:#a78bfa; text-decoration:none; transition:color .2s;
+    }
+    .legal-content a:hover { color:#c4b5fd; }
+    .legal-content strong { color:rgba(255,255,255,.7); font-weight:600; }
+
+    /* ===== LEGAL LEGEND ===== */
+    .legal-legend {
+      display:flex; flex-wrap:wrap; gap:1rem; margin-bottom:2.5rem;
+      padding:1.25rem 1.5rem;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:12px;
+    }
+    .legal-legend-item {
+      display:flex; align-items:center; gap:.5rem;
+      font-size:.8rem; color:rgba(255,255,255,.4);
+    }
+    .legal-legend-swatch {
+      width:14px; height:14px; border-radius:4px;
+    }
+    .legal-legend-swatch.central {
+      background:rgba(124,58,237,.15); border:1px solid rgba(124,58,237,.4);
+    }
+    .legal-legend-swatch.selfhost {
+      background:rgba(74,222,128,.1); border:1px solid rgba(74,222,128,.35);
+    }
+
+    /* ===== COLOR-CODED SECTIONS ===== */
+    .legal-central {
+      border-left:3px solid rgba(124,58,237,.5);
+      background:linear-gradient(90deg, rgba(124,58,237,.06) 0%, transparent 60%);
+      padding:1.25rem 1.5rem;
+      border-radius:0 12px 12px 0;
+      margin:1rem 0;
+      position:relative;
+    }
+    .legal-central::before {
+      content:'ECTO CENTRAL';
+      display:inline-block;
+      font-size:.65rem; font-weight:700; letter-spacing:.08em;
+      color:rgba(124,58,237,.9);
+      background:rgba(124,58,237,.12);
+      padding:3px 10px; border-radius:100px;
+      margin-bottom:.75rem;
+    }
+    .legal-central p, .legal-central li { color:rgba(255,255,255,.45); }
+
+    .legal-selfhost {
+      border-left:3px solid rgba(74,222,128,.45);
+      background:linear-gradient(90deg, rgba(74,222,128,.05) 0%, transparent 60%);
+      padding:1.25rem 1.5rem;
+      border-radius:0 12px 12px 0;
+      margin:1rem 0;
+      position:relative;
+    }
+    .legal-selfhost::before {
+      content:'SELF-HOSTED';
+      display:inline-block;
+      font-size:.65rem; font-weight:700; letter-spacing:.08em;
+      color:rgba(74,222,128,.85);
+      background:rgba(74,222,128,.1);
+      padding:3px 10px; border-radius:100px;
+      margin-bottom:.75rem;
+    }
+    .legal-selfhost p, .legal-selfhost li { color:rgba(255,255,255,.45); }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      border-top:1px solid rgba(255,255,255,.04);
+      padding:3rem 2rem;
+      position:relative; z-index:4;
+      background:rgba(5,5,16,.7);
+      backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    }
+    .footer-inner { max-width:1100px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; }
+    .footer-left { display:flex; align-items:center; gap:10px; }
+    .footer-left img { height:20px; width:20px; opacity:.35; }
+    .footer-left span { font-size:.8rem; color:rgba(255,255,255,.2); }
+    .footer-right { display:flex; align-items:center; gap:1.5rem; }
+    .footer-right a { color:rgba(255,255,255,.2); text-decoration:none; font-size:.8125rem; transition:color .25s; }
+    .footer-right a:hover { color:rgba(255,255,255,.5); }
+  </style>
+</head>
+
+<body>
+
+  <!-- ===== FIXED BACKGROUND ===== -->
+  <div class="bg-glow"></div>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="nav" id="navbar">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo"><img src="./ecto.png" alt="Ecto" /><span>Ecto</span></a>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/#features">Features</a></li>
+        <li><a href="/privacy">Privacy</a></li>
+        <li><a href="/terms">Terms</a></li>
+      </ul>
+      <div class="nav-right">
+        <a href="https://app.ecto.chat" class="nav-cta">Open Ecto</a>
+      </div>
+      <button class="nav-hamburger" id="menu-toggle" aria-label="Toggle menu">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+  </nav>
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="/">Home</a>
+    <a href="/#features">Features</a>
+    <a href="/privacy">Privacy</a>
+    <a href="/terms">Terms</a>
+    <a href="https://github.com/ecto-chat/ecto-server">GitHub</a>
+  </div>
+
+  <!-- ===== PRIVACY POLICY ===== -->
+  <main class="legal-content">
+    <h1>Privacy Policy</h1>
+    <p class="legal-updated">Last updated: March 3, 2026</p>
+
+    <div class="legal-legend">
+      <div class="legal-legend-item">
+        <div class="legal-legend-swatch central"></div>
+        Applies to Ecto Central (app.ecto.chat)
+      </div>
+      <div class="legal-legend-item">
+        <div class="legal-legend-swatch selfhost"></div>
+        Applies to Self-Hosted servers
+      </div>
+      <div class="legal-legend-item">
+        <span style="color:rgba(255,255,255,.55);">Unmarked</span> &mdash; applies to all users
+      </div>
+    </div>
+
+    <!-- 1. Introduction -->
+    <h2>1. Introduction</h2>
+    <p>Ecto ("we", "us", "our") is a chat platform that lets you communicate across servers via text, voice, and video. Ecto operates in two modes:</p>
+    <ul>
+      <li><strong>Ecto Central</strong> — our hosted service at <a href="https://app.ecto.chat">app.ecto.chat</a>, operated by us.</li>
+      <li><strong>Self-Hosted</strong> — instances of the open-source Ecto server software run by independent operators on their own infrastructure.</li>
+    </ul>
+    <p>This Privacy Policy explains what data is collected, how it is used, and your rights depending on which mode you use.</p>
+
+    <!-- 2. Information We Collect -->
+    <h2>2. Information We Collect</h2>
+    <h3>All Users</h3>
+    <p>When you create an Ecto account, we collect the information you provide during registration, such as your username, email address, and password (stored as a hash). Messages, files, and other content you send through the platform are transmitted to the servers you connect to.</p>
+
+    <div class="legal-central">
+      <h3>Ecto Central</h3>
+      <p>In addition to the above, when you use Ecto Central we may collect:</p>
+      <ul>
+        <li>IP addresses and approximate geolocation (for security and abuse prevention)</li>
+        <li>Device and browser information (user agent, OS, screen resolution)</li>
+        <li>Usage analytics (features used, session duration, crash reports)</li>
+        <li>Voice/video metadata (call duration, participant count — not call content)</li>
+      </ul>
+    </div>
+
+    <div class="legal-selfhost">
+      <h3>Self-Hosted Servers</h3>
+      <p>We (<strong>Ecto</strong>) do not collect any data from self-hosted server instances. The operator of a self-hosted server controls what data is collected and stored. Contact your server operator for their privacy practices.</p>
+    </div>
+
+    <!-- 3. How We Use Information -->
+    <h2>3. How We Use Information</h2>
+    <h3>All Users</h3>
+    <p>We use collected information to:</p>
+    <ul>
+      <li>Provide and maintain the Ecto service</li>
+      <li>Authenticate your identity and secure your account</li>
+      <li>Deliver messages and media to intended recipients</li>
+    </ul>
+
+    <div class="legal-central">
+      <h3>Ecto Central</h3>
+      <p>We additionally use your information to:</p>
+      <ul>
+        <li>Improve and optimize the Ecto Central service</li>
+        <li>Detect, prevent, and address abuse, fraud, and security threats</li>
+        <li>Generate aggregated, anonymized analytics to understand usage patterns</li>
+        <li>Send essential service communications (security alerts, policy changes)</li>
+      </ul>
+    </div>
+
+    <!-- 4. Data Storage & Security -->
+    <h2>4. Data Storage & Security</h2>
+
+    <div class="legal-central">
+      <h3>Ecto Central</h3>
+      <p>Your data on Ecto Central is stored on infrastructure located in the United States. We employ industry-standard security measures including:</p>
+      <ul>
+        <li>Encryption in transit (TLS) and at rest</li>
+        <li>Access controls and authentication for internal systems</li>
+        <li>Regular security assessments</li>
+      </ul>
+      <p>No method of transmission or storage is 100% secure. While we strive to protect your data, we cannot guarantee absolute security.</p>
+    </div>
+
+    <div class="legal-selfhost">
+      <h3>Self-Hosted Servers</h3>
+      <p>Data storage and security for self-hosted instances are entirely the responsibility of the server operator. We provide documentation and best-practice recommendations, but we have no control over how operators configure, secure, or maintain their servers.</p>
+    </div>
+
+    <!-- 5. Data Sharing -->
+    <h2>5. Data Sharing</h2>
+    <h3>All Users</h3>
+    <p><strong>We do not sell your personal data. We do not serve ads. We do not share your data with third-party advertisers.</strong></p>
+
+    <div class="legal-central">
+      <h3>Ecto Central</h3>
+      <p>We may share limited data with:</p>
+      <ul>
+        <li><strong>Infrastructure providers</strong> — hosting, CDN, and database services that help us operate Ecto Central, bound by data processing agreements.</li>
+        <li><strong>Legal compliance</strong> — when required by law, subpoena, or valid legal process, or to protect the rights, safety, or property of Ecto or others.</li>
+      </ul>
+    </div>
+
+    <div class="legal-selfhost">
+      <h3>Self-Hosted Servers</h3>
+      <p>We do not have access to data on self-hosted servers. Any data sharing from a self-hosted instance is determined solely by that server's operator.</p>
+    </div>
+
+    <!-- 6. Your Rights -->
+    <h2>6. Your Rights</h2>
+    <h3>All Users</h3>
+    <p>Depending on your jurisdiction, you may have the right to:</p>
+    <ul>
+      <li><strong>Access</strong> — request a copy of the personal data we hold about you</li>
+      <li><strong>Correction</strong> — request correction of inaccurate personal data</li>
+      <li><strong>Deletion</strong> — request deletion of your personal data</li>
+      <li><strong>Export</strong> — receive your data in a portable format</li>
+    </ul>
+
+    <div class="legal-central">
+      <h3>Ecto Central</h3>
+      <p>To exercise these rights on Ecto Central, email <a href="mailto:privacy@ecto.chat">privacy@ecto.chat</a> with your request. We will respond within 30 days. You can also delete your account and associated data directly from your account settings.</p>
+    </div>
+
+    <div class="legal-selfhost">
+      <h3>Self-Hosted Servers</h3>
+      <p>To exercise your data rights on a self-hosted server, contact the server operator directly. We cannot access, modify, or delete data stored on third-party instances.</p>
+    </div>
+
+    <!-- 7. Children's Privacy -->
+    <h2>7. Children's Privacy</h2>
+    <p>Ecto is not intended for children under the age of 13. We do not knowingly collect personal information from children under 13. If you believe a child under 13 has provided us with personal data, please contact us at <a href="mailto:privacy@ecto.chat">privacy@ecto.chat</a> and we will delete it promptly.</p>
+
+    <!-- 8. Changes to This Policy -->
+    <h2>8. Changes to This Policy</h2>
+    <p>We may update this Privacy Policy from time to time. When we make significant changes, we will notify users through the Ecto application or by updating the "Last updated" date at the top of this page. Continued use of Ecto after changes constitutes acceptance of the updated policy.</p>
+
+    <!-- 9. Contact -->
+    <h2>9. Contact</h2>
+    <p>If you have questions about this Privacy Policy, contact us at:</p>
+    <ul>
+      <li>Email: <a href="mailto:privacy@ecto.chat">privacy@ecto.chat</a></li>
+      <li>GitHub: <a href="https://github.com/ecto-chat">github.com/ecto-chat</a></li>
+    </ul>
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-left"><img src="./ecto.png" alt="Ecto" /><span>&copy; 2025 Ecto.</span></div>
+      <div class="footer-right">
+        <a href="https://app.ecto.chat">Open App</a>
+        <a href="https://app.ecto.chat/download">Download</a>
+        <a href="https://github.com/ecto-chat">GitHub</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== SCRIPTS ===== -->
+  <script>
+    // Navbar scroll
+    const nav = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 20);
+    }, { passive: true });
+
+    // Mobile menu
+    document.getElementById('menu-toggle').addEventListener('click', () => {
+      document.getElementById('mobile-menu').classList.toggle('open');
+    });
+    document.querySelectorAll('#mobile-menu a').forEach(a => {
+      a.addEventListener('click', () => document.getElementById('mobile-menu').classList.remove('open'));
+    });
+  </script>
+</body>
+</html>
