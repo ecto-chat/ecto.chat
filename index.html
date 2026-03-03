@@ -154,7 +154,7 @@
     .hero-content {
       position:relative; z-index:10;
       text-align:center; padding:0 1.5rem;
-      max-width:800px; margin-top:-40px;
+      max-width:900px; margin-top:-40px;
     }
     .hero-frost {
       background:rgba(5,5,16,.3);
@@ -256,6 +256,29 @@
     }
     .btn-ghost:hover { background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.18); color:#fff; transform:translateY(-2px); }
     @keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
+
+    /* ===== HERO SCREENSHOT ===== */
+    .hero-screenshot-wrap {
+      margin-top:2.5rem;
+      perspective:800px;
+    }
+    .hero-screenshot {
+      border-radius:16px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:0 20px 60px rgba(0,0,0,.5), 0 0 40px rgba(124,58,237,.1);
+      transition:transform .15s ease-out, box-shadow .3s ease;
+      will-change:transform;
+    }
+    .hero-screenshot img {
+      display:block;
+      width:100%;
+      height:auto;
+      pointer-events:none;
+    }
+    .hero-screenshot:hover {
+      box-shadow:0 30px 80px rgba(0,0,0,.6), 0 0 60px rgba(124,58,237,.15);
+    }
 
     /* ===== FLOATING GLASS CARDS ===== */
     .float-cards {
@@ -466,7 +489,7 @@
     <div class="glass-card card-3 float-3">
       <div class="label">Price</div>
       <div class="value">Free</div>
-      <div class="sub">Premium upgrades available</div>
+      <div class="sub">Always free</div>
     </div>
   </div>
 
@@ -476,7 +499,6 @@
       <a href="#" class="nav-logo"><img src="./ecto.png" alt="Ecto" /><span>Ecto</span></a>
       <ul class="nav-links">
         <li><a href="#features">Features</a></li>
-        <li><a href="#premium">Premium</a></li>
         <li><a href="#get-started">Get Started</a></li>
         <li><div class="nav-divider"></div></li>
         <li class="nav-star">
@@ -496,7 +518,6 @@
   </nav>
   <div class="mobile-menu" id="mobile-menu">
     <a href="#features">Features</a>
-    <a href="#premium">Premium</a>
     <a href="#get-started">Get Started</a>
     <a href="https://github.com/ecto-chat/ecto-server">GitHub</a>
   </div>
@@ -523,6 +544,11 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Download for Desktop
           </a>
+        </div>
+        <div class="hero-screenshot-wrap reveal">
+          <div class="hero-screenshot" id="hero-screenshot">
+            <img src="hero.png" alt="Ecto chat interface" draggable="false" />
+          </div>
         </div>
       </div>
     </div>
@@ -596,25 +622,6 @@
             <div class="arch-node arch-node-server"><svg width="14" height="14" fill="none" stroke="#a78bfa" stroke-width="1.5"><circle cx="7" cy="7" r="3"/></svg> Your Group</div>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- ===== PREMIUM ===== -->
-  <section class="section" id="premium">
-    <div class="section-inner" style="text-align:center;">
-      <div class="frost reveal" style="margin-bottom:1.5rem;">
-        <div class="section-label">Premium</div>
-        <h2 class="section-title" style="margin-left:auto;margin-right:auto;">Level Up Your Experience</h2>
-        <p class="section-desc" style="margin-left:auto;margin-right:auto;">Ecto is free forever for messaging, voice, and video. Premium unlocks extras for those who want more.</p>
-      </div>
-      <div class="tech-pills reveal stagger">
-        <span class="tech-pill">Custom Themes</span><span class="tech-pill">Animated Avatars</span>
-        <span class="tech-pill">Profile Effects</span><span class="tech-pill">100 MB Uploads</span>
-        <span class="tech-pill">Custom CSS</span><span class="tech-pill">Profile Badges</span>
-        <span class="tech-pill">Priority Support</span><span class="tech-pill">Cloud Sync</span>
       </div>
     </div>
   </section>
@@ -700,6 +707,26 @@
     });
     const starLi = document.querySelector('.nav-star');
     if (starLi) starObserver.observe(starLi, { childList: true });
+
+    // ---- Hero screenshot parallax ----
+    (function() {
+      const el = document.getElementById('hero-screenshot');
+      if (!el) return;
+      document.addEventListener('mousemove', (e) => {
+        const rect = el.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dx = (e.clientX - cx) / (rect.width / 2);
+        const dy = (e.clientY - cy) / (rect.height / 2);
+        const maxTilt = 8;
+        const rotY = dx * maxTilt;
+        const rotX = -dy * maxTilt;
+        el.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+      }, { passive: true });
+      document.addEventListener('mouseleave', () => {
+        el.style.transform = 'rotateX(0) rotateY(0)';
+      });
+    })();
 
     // ---- Three.js animated wireframe orb (fixed background) ----
     (function() {
