@@ -713,7 +713,7 @@
         const cy = rect.top + rect.height / 2;
         const dx = (e.clientX - cx) / (rect.width / 2);
         const dy = (e.clientY - cy) / (rect.height / 2);
-        const maxTilt = 8;
+        const maxTilt = 2.4;
         const rotY = dx * maxTilt;
         const rotX = -dy * maxTilt;
         el.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
@@ -791,10 +791,10 @@
       let t = 0;
       function animate() {
         requestAnimationFrame(animate);
-        t += 0.008;
+        t += 0.004;
         displace(t*3);
-        wire.rotation.y += 0.0015;
-        wire.rotation.x += 0.0008;
+        wire.rotation.y += 0.00075;
+        wire.rotation.x += 0.0004;
         inner.rotation.y = wire.rotation.y;
         inner.rotation.x = wire.rotation.x;
         camera.position.x += (mx-camera.position.x)*0.02;
